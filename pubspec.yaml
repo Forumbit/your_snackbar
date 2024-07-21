@@ -7,7 +7,6 @@ repository: "https://github.com/Forumbit/your_snackbar"
 topics:
   - snackbar
   - toast
-  - top snackbar
 
 platforms:
   android:
