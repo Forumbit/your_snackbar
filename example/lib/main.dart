@@ -34,7 +34,20 @@ class MyHomePage extends StatelessWidget {
       ),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => showYourSnackbar(context),
+          onPressed: () => showYourSnackbar(
+            context,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.airplane_ticket, color: Colors.white),
+                SizedBox(width: 20),
+                Text(
+                  'Ticket added',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
           child: const Text('Show snackbar'),
         ),
       ),

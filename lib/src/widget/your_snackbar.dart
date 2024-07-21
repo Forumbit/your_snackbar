@@ -8,9 +8,10 @@ import 'package:your_snackbar/src/widget/your_snackbar_style.dart';
 /// {@endtemplate}
 class YourSnackbar extends StatefulWidget {
   /// {@macro your_snackbar}
-  const YourSnackbar({super.key, this.snackbarStyle});
+  const YourSnackbar({super.key, this.snackbarStyle, required this.child});
 
   final YourSnackbarStyle? snackbarStyle;
+  final Widget child;
 
   @override
   State<YourSnackbar> createState() => _YourSnackbarState();
@@ -80,6 +81,7 @@ class _YourSnackbarState extends State<YourSnackbar>
           child: Content(
             snackbarStyle:
                 widget.snackbarStyle ?? YourSnackbarStyle.defaultStyle(context),
+            child: widget.child,
           ),
         ),
       ),
