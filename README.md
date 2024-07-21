@@ -22,6 +22,6 @@ onPressed: () => showYourSnackbar(
           ),
 ```
 
-![Video Frame](https://github.com/Forumbit/your_snackbar/assets/video/how-work.gif)
+![Video Frame](https://github.com/Forumbit/your_snackbar/blob/master/assets/video/how-work.gif)
 
 ## [MIT License](https://opensource.org/licenses/MIT)
