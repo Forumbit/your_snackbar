@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:your_snackbar/src/controller/overlay_entry_controller.dart';
 import 'package:your_snackbar/src/widget/content.dart';
-import 'package:your_snackbar/src/widget/your_snackbar_style.dart';
+import 'package:your_snackbar/your_snackbar.dart';
 
 /// {@template your_snackbar}
 /// YourSnackbar widget.
 /// {@endtemplate}
 class YourSnackbar extends StatefulWidget {
   /// {@macro your_snackbar}
-  const YourSnackbar({super.key, this.snackbarStyle, required this.child});
+  const YourSnackbar({
+    super.key,
+    required this.snackbarStyle,
+    required this.height,
+    required this.child,
+    required this.direction,
+    required this.duration,
+  });
 
-  final YourSnackbarStyle? snackbarStyle;
+  final YourSnackbarStyle snackbarStyle;
   final Widget child;
+  final double height;
+  final SnackbarDirection direction;
+  final Duration duration;
 
   @override
   State<YourSnackbar> createState() => _YourSnackbarState();
@@ -38,7 +48,7 @@ class _YourSnackbarState extends State<YourSnackbar>
       curve: Curves.easeInOutBack,
       reverseCurve: Curves.easeInOutExpo,
     );
-    _animation = Tween<double>(begin: 0, end: 1).animate(curve)
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(curve)
       ..addStatusListener(_animationStatusListener);
     _controller.forward();
   }
@@ -46,7 +56,7 @@ class _YourSnackbarState extends State<YourSnackbar>
   void _animationStatusListener(AnimationStatus status) async {
     if (status == AnimationStatus.completed) {
       setState(() => isOpened = true);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(widget.duration);
       if (!mounted) return;
       _controller.reverse();
     } else if (status == AnimationStatus.dismissed) {
@@ -64,11 +74,17 @@ class _YourSnackbarState extends State<YourSnackbar>
 
   @override
   Widget build(BuildContext context) {
+    final snackbarStyle = widget.snackbarStyle;
+
+    final height = widget.height;
     return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _animation,
+      child: ListenableBuilder(
+        listenable: _animation,
         builder: (BuildContext context, Widget? child) => Transform.translate(
-          offset: Offset(0, (_animation.value - 1) * 100),
+          offset: Offset(
+            0,
+            getHeight(height, context),
+          ),
           child: Align(
             alignment: Alignment.topLeft,
             child: child,
@@ -76,15 +92,39 @@ class _YourSnackbarState extends State<YourSnackbar>
         ),
         child: Dismissible(
           key: UniqueKey(),
-          direction: DismissDirection.up,
+          direction: widget.direction.onTop
+              ? DismissDirection.up
+              : DismissDirection.down,
           onDismissed: (direction) => overlayEntryController.removeEntry(),
           child: Content(
-            snackbarStyle:
-                widget.snackbarStyle ?? YourSnackbarStyle.defaultStyle(context),
+            snackbarStyle: snackbarStyle,
+            height: widget.height,
+            direction: widget.direction,
             child: widget.child,
           ),
         ),
       ),
     );
+  }
+
+  double getHeight(double height, BuildContext context) {
+    final padding = widget.direction.onTop
+        ? widget.snackbarStyle.contentPadding.top
+        : widget.snackbarStyle.contentPadding.bottom;
+
+    final side = widget.direction.onTop ? 1 : -1;
+
+    final percent = _animation.value - side;
+
+    final safeArea = widget.direction.onTop
+        ? MediaQuery.of(context).padding.top
+        : MediaQuery.of(context).padding.bottom;
+
+    final fullHeight = height + safeArea + padding * 2;
+
+    final y = widget.direction.onBottom
+        ? MediaQuery.sizeOf(context).height + fullHeight
+        : 0.0;
+    return y + side * (percent * fullHeight);
   }
 }
